@@ -22,6 +22,7 @@ EXAMPLE
       my $apt = Linux::APT->new;
       my $update = $apt->update;
       my $toupgrade = $apt->toupgrade;
+      my $upgraded = $apt->install(keys(%{$toupgrade->{packages}}));
 
 METHODS
   new
@@ -114,6 +115,25 @@ METHODS
 
         new Version to be installed.
 
+  search
+      my $search = $apt->search('^t\w+d$', 'perl');
+
+      my $search = $apt->search({in => ['all']}, '^t\w+d$', 'perl'); # 'all' is default
+
+      my $search = $apt->search({in=>['name', 'description']},
+            'linux[\s-]image', 'linux[\s-]source', 'linux kernel image');
+
+      my $search = $apt->search({in => ['description']}, 'linux kernel source');
+
+    Requires one or more search arguments in regex format. Optional options
+    as first argument in hashref format.
+
+    Return a hashref of packages that match the regex search.
+
+    packages
+        Multiple searches can be specified. Each search is a hash key then
+        broken down by each matching package name and it's summary.
+
   install
       # install or upgrade the specified packages (and all deps)
       my $install = $apt->install('nautilus', 'libcups2', 'rhythmbox');
@@ -189,16 +209,34 @@ METHODS
 
 TODO
     (update this todo list...)
-    Determine other necessary features. (email me with your requests:
-    "dusty#megagram#com" or use the CPAN bug tracker)
+    Add functions to modify the "sources.list".
+    Add "dist-upgrade" functionality.
+    Add function to show version(s) of currently installed specified
+    package(s).
+    Determine other necessary features. (please use the CPAN bug tracker to
+    request features)
 
 BUGS/WISHLIST
-    REPORT BUGS! Report any bugs to the CPAN bug tracker or email me
-    "dusty#megagram#com".
+    REPORT BUGS! Report any bugs to the CPAN bug tracker. Bug reports are
+    adored.
 
-    To wishlist something, use the CPAN bug tracker (set as wishlist) or
-    email me. I'd be happy to implement useful functionality in this module
-    on request. I'd also be happy to accept patches.
+    To wishlist something, use the CPAN bug tracker (set as wishlist). I'd
+    be happy to implement useful functionality in this module on request.
+
+PARTICIPATION
+    I'd be very, very happy to accept patches in diff format. Or...
+
+    If you wish to hack on this code, please fork the git repository found
+    at: <http://github.com/dustywilson/Linux--APT/>
+
+    If you have some goodness to push back to that repository, just use the
+    "pull request" button on the github site or let me know where to pull
+    from.
+
+THANKS
+    Nicholas DeClario
+
+        Patch to provide initial search function for version 0.02.
 
 COPYRIGHT/LICENSE
     Copyright 2009 Megagram. You can use any one of these licenses: Perl
@@ -263,4 +301,14 @@ COPYRIGHT/LICENSE
       INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
       OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
       IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+POD ERRORS
+    Hey! The above document had some coding errors, which are explained
+    below:
+
+    Around line 279:
+        '=item' outside of any '=over'
+
+    Around line 331:
+        You forgot a '=back' before '=head2'
 
