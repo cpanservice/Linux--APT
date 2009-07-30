@@ -4,3 +4,5 @@ Revision history for Perl extension Linux::APT.
 	- original version; created by h2xs 1.23 with options
 		-XAn Linux::APT
 
+0.02  Thu Jul 30 03:15:00 2009
+	- added search function (thanks Nicholas DeClario!)
