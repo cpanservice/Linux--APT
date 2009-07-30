@@ -3,7 +3,7 @@ package Linux::APT;
 use strict;
 use warnings;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 NAME
 
@@ -258,6 +258,74 @@ sub toupgrade
   }
 
   return $updates;
+}
+
+=head2 search
+
+  my $search = $apt->search('^t\w+d$', 'perl');
+
+  my $search = $apt->search({in => ['all']}, '^t\w+d$', 'perl'); # 'all' is default
+
+  my $search = $apt->search({in=>['name', 'description']},
+  	'linux[\s-]image', 'linux[\s-]source', 'linux kernel image');
+
+  my $search = $apt->search({in => ['description']}, 'linux kernel source');
+
+Requires one or more search arguments in regex format.  Optional options as first
+argument in hashref format.
+
+Return a hashref of packages that match the regex search.
+
+=item packages
+
+Multiple searches can be specified.  Each search is a hash key then broken
+down by each matching package name and it's summary.
+
+=cut
+
+sub search
+{
+	my $self = shift;
+	my $search = {};
+	my @args = @_;
+	my $opts = {
+		in => ['all'],
+	};
+	
+	if (ref($args[0]) eq 'HASH')
+	{
+		my $optarg = shift;
+		foreach my $arg (keys(%{$optarg}))
+		{
+			$opts->{$arg} = $optarg->{$arg};
+		}
+	}
+
+	foreach my $pkg (@args) 
+	{
+		if (open(APT, "$self->{'aptcache'} search '$pkg' 2>&1 |")) 
+		{
+			while (my $line = <APT>) 
+			{
+				my $okay = 0;
+				$okay = 1 if (grep(m/all/, @{$opts->{in}}));
+				chomp($line);
+				print qq($line\n) if $self->{'debug'};
+				if ($line =~ m/^(\S+)\s+-\s+(.*)$/) 
+				{
+					my ($name, $desc) = ($1, $2);
+					chomp($desc);
+  				$okay = 1 if (grep(m/name/, @{$opts->{in}}) && $name =~ m/$pkg/i);
+  				$okay = 1 if (grep(m/description/, @{$opts->{in}}) && $desc =~ m/$pkg/i);
+  				next unless $okay;
+					$search->{$pkg}->{$name} = $desc;
+				}
+			}
+		}
+		close(APT);
+	}
+
+	return $search;
 }
 
 =head2 install
@@ -521,20 +589,41 @@ sub purge
 
 =item Add function to show version(s) of currently installed specified package(s).
 
-=item Add search function to find installable packages.
-
-=item Determine other necessary features. (email me with your requests: C<dusty#megagram#com> or use the CPAN bug tracker)
+=item Determine other necessary features. (please use the CPAN bug tracker to request features)
 
 =back
 
 =head1 BUGS/WISHLIST
 
 B<REPORT BUGS!>
-Report any bugs to the CPAN bug tracker or email me C<dusty#megagram#com>.
+Report any bugs to the CPAN bug tracker.  Bug reports are adored.
 
-To wishlist something, use the CPAN bug tracker (set as wishlist) or email me.
+To wishlist something, use the CPAN bug tracker (set as wishlist).
 I'd be happy to implement useful functionality in this module on request.
-I'd also be happy to accept patches.
+
+=head1 PARTICIPATION
+
+I'd be very, very happy to accept patches in diff format.  Or...
+
+If you wish to hack on this code, please fork the git repository found at:
+L<http://github.com/dustywilson/Linux--APT/>
+
+If you have some goodness to push back to that repository, just use the
+"pull request" button on the github site or let me know where to pull from.
+
+=head1 THANKS
+
+=over
+
+=item Nicholas DeClario
+
+=over
+
+=item Patch to provide initial search function for version 0.02.
+
+=back
+
+=back
 
 =head1 COPYRIGHT/LICENSE
 
