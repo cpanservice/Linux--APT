@@ -276,10 +276,14 @@ argument in hashref format.
 
 Return a hashref of packages that match the regex search.
 
+=over
+
 =item packages
 
 Multiple searches can be specified.  Each search is a hash key then broken
 down by each matching package name and it's summary.
+
+=back
 
 =cut
 
