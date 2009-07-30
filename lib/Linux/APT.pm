@@ -267,7 +267,7 @@ sub toupgrade
   my $search = $apt->search({in => ['all']}, '^t\w+d$', 'perl'); # 'all' is default
 
   my $search = $apt->search({in=>['name', 'description']},
-  	'linux[\s-]image', 'linux[\s-]source', 'linux kernel image');
+    'linux[\s-]image', 'linux[\s-]source', 'linux kernel image');
 
   my $search = $apt->search({in => ['description']}, 'linux kernel source');
 
@@ -289,47 +289,47 @@ down by each matching package name and it's summary.
 
 sub search
 {
-	my $self = shift;
-	my $search = {};
-	my @args = @_;
-	my $opts = {
-		in => ['all'],
-	};
-	
-	if (ref($args[0]) eq 'HASH')
-	{
-		my $optarg = shift;
-		foreach my $arg (keys(%{$optarg}))
-		{
-			$opts->{$arg} = $optarg->{$arg};
-		}
-	}
+  my $self = shift;
+  my $search = {};
+  my @args = @_;
+  my $opts = {
+    in => ['all'],
+  };
 
-	foreach my $pkg (@args) 
-	{
-		if (open(APT, "$self->{'aptcache'} search '$pkg' 2>&1 |")) 
-		{
-			while (my $line = <APT>) 
-			{
-				my $okay = 0;
-				$okay = 1 if (grep(m/all/, @{$opts->{in}}));
-				chomp($line);
-				print qq($line\n) if $self->{'debug'};
-				if ($line =~ m/^(\S+)\s+-\s+(.*)$/) 
-				{
-					my ($name, $desc) = ($1, $2);
-					chomp($desc);
-  				$okay = 1 if (grep(m/name/, @{$opts->{in}}) && $name =~ m/$pkg/i);
-  				$okay = 1 if (grep(m/description/, @{$opts->{in}}) && $desc =~ m/$pkg/i);
-  				next unless $okay;
-					$search->{$pkg}->{$name} = $desc;
-				}
-			}
-		}
-		close(APT);
-	}
+  if (ref($args[0]) eq 'HASH')
+  {
+    my $optarg = shift;
+    foreach my $arg (keys(%{$optarg}))
+    {
+      $opts->{$arg} = $optarg->{$arg};
+    }
+  }
 
-	return $search;
+  foreach my $pkg (@args) 
+  {
+    if (open(APT, "$self->{'aptcache'} search '$pkg' 2>&1 |")) 
+    {
+      while (my $line = <APT>) 
+      {
+        my $okay = 0;
+        $okay = 1 if (grep(m/all/, @{$opts->{in}}));
+        chomp($line);
+        print qq($line\n) if $self->{'debug'};
+        if ($line =~ m/^(\S+)\s+-\s+(.*)$/) 
+        {
+          my ($name, $desc) = ($1, $2);
+          chomp($desc);
+          $okay = 1 if (grep(m/name/, @{$opts->{in}}) && $name =~ m/$pkg/i);
+          $okay = 1 if (grep(m/description/, @{$opts->{in}}) && $desc =~ m/$pkg/i);
+          next unless $okay;
+          $search->{$pkg}->{$name} = $desc;
+        }
+      }
+    }
+    close(APT);
+  }
+
+  return $search;
 }
 
 =head2 install
